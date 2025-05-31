@@ -57,7 +57,24 @@ exports.updateCategory = asyncHandler(async (req, res) => {
   if (!category) {
     res
       .status(404)
-      .json({ success: false, message: `No category for this id ${id}` });
+      .json({ success: false, message: `No category for this id ${id}!` });
   }
   res.status(200).json({ success: true, data: category });
+});
+
+// @dec     Delete specific category
+// @route   DELETE /api/v1/categories/:id
+// @access  Private
+exports.deleteCategory = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const category = await Category.findByIdAndDelete(id);
+
+  if (!category) {
+    res
+      .status(404)
+      .json({ success: false, message: `No category for this id ${id}` });
+  }
+  res
+    .status(200)
+    .json({ success: true, message: 'Category deleted successfully!' });
 });
