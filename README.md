@@ -1,3 +1,3 @@
-# E-Commerce Project
+## E-Commerce Project
 
-## Status: In Progress
+#### Status: 🚧 In Progress
