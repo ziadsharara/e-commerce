@@ -3,6 +3,8 @@ import dotenv from 'dotenv';
 import morgan from 'morgan'; // HTTP request logger middleware
 
 dotenv.config({ path: 'config.env' }); // Setting the .env variables
+import { ApiError } from './utils/apiError.js';
+import { globalError } from './middlewares/errorMiddleware.js';
 import dbConnection from './config/database.js';
 import categoryRoute from './routes/categoryRoute.js';
 
@@ -23,17 +25,27 @@ if (process.env.NODE_ENV === 'development') {
 // Mount Routes
 app.use('/api/v1/categories', categoryRoute);
 
+// Generate error handling middleware for express
 app.use((req, res, next) => {
-  // Create error and send it to error handling middleware
-  const err = new Error(`Can't find this route: ${req.originalUrl}`);
-  next(err.message);
+  next(new ApiError(`Can't find this route: ${req.originalUrl}`, 400));
 });
 
 // Express error handler => if you pass 4 params in app.use() => express error handler
 // Global error handling middleware
-app.use((error, req, res, next) => {
-  res.status(500).json({ success: false, error });
-});
+app.use(globalError);
 
 const PORT = process.env.PORT || 8000;
-app.listen(PORT, () => console.log(`Example app listening on port ${PORT}!`));
+const server = app.listen(PORT, () =>
+  console.log(`Example app listening on port ${PORT}!`)
+);
+
+// Events => listen => callback(err)
+// Handling rejections outside express
+process.on('unhandledRejection', err => {
+  console.error(`UnhandledRejection Errors: ${err.name} | ${err.message}`);
+  // finish all processes on the server and exit from app
+  server.close(() => {
+    console.error(`Shutting down...`);
+    process.exit(1);
+  });
+});
