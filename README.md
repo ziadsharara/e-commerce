@@ -44,13 +44,21 @@ A fully-featured and scalable e-commerce backend built with **Node.js**, **Expre
 ## 🗂️ Project Structure
 
 📁 config/ # DB and environment setup
+
 📁 controllers/ # Route logic handlers
+
 📁 middlewares/ # Custom middleware (auth, error, validation)
+
 📁 models/ # Mongoose models
+
 📁 routes/ # Express routers
+
 📁 utils/ # Helper functions (email, error handlers, etc.)
+
 📁 services/ # Business logic layer
+
 .env # Environment variables
+
 server.js # Entry point
 
 yaml
