@@ -3,7 +3,7 @@
 
 #### Status: 🚧 In Progress
 -->
-A fully-featured and scalable e-commerce backend built with **Node.js**, **Express.js**, and **MongoDB**. This RESTful API supports managing products, users, orders, authentication, payments, and more — following clean code principles, modular architecture, and secure design patterns.
+### A fully-featured and scalable e-commerce backend built with **Node.js**, **Express.js**, and **MongoDB**. This RESTful API supports managing products, users, orders, authentication, payments, and more — following clean code principles, modular architecture, and secure design patterns.
 
 ---
 
