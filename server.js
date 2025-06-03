@@ -1,7 +1,6 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import morgan from 'morgan'; // HTTP request logger middleware
-import { match, pathToRegexp, compile, parse, stringify } from 'path-to-regexp';
 
 import { ApiError } from './utils/apiError.js';
 import { globalError } from './middlewares/errorMiddleware.js';
@@ -29,7 +28,7 @@ app.use('/api/v1/categories', categoryRoute);
 app.use('/api/v1/subcategories', subCategoryRoute);
 
 // Generate error handling middleware for express
-app.all('*', (req, res, next) => {
+app.use((req, res, next) => {
   next(new ApiError(`Can't find this route: ${req.originalUrl}`, 400));
 });
 
