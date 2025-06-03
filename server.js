@@ -1,13 +1,15 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import morgan from 'morgan'; // HTTP request logger middleware
+import { match, pathToRegexp, compile, parse, stringify } from 'path-to-regexp';
 
-dotenv.config({ path: 'config.env' }); // Setting the .env variables
 import { ApiError } from './utils/apiError.js';
 import { globalError } from './middlewares/errorMiddleware.js';
 import dbConnection from './config/database.js';
 import categoryRoute from './routes/categoryRoute.js';
+import subCategoryRoute from './routes/subCategoryRoute.js';
 
+dotenv.config({ path: 'config.env' }); // Setting the .env variables
 // Connect with db
 dbConnection();
 
@@ -24,9 +26,10 @@ if (process.env.NODE_ENV === 'development') {
 
 // Mount Routes
 app.use('/api/v1/categories', categoryRoute);
+app.use('/api/v1/subcategories', subCategoryRoute);
 
 // Generate error handling middleware for express
-app.use((req, res, next) => {
+app.all('*', (req, res, next) => {
   next(new ApiError(`Can't find this route: ${req.originalUrl}`, 400));
 });
 
@@ -36,7 +39,7 @@ app.use(globalError);
 
 const PORT = process.env.PORT || 8000;
 const server = app.listen(PORT, () =>
-  console.log(`Example app listening on port ${PORT}!`)
+  console.log(`Example app listening on port ${PORT}!`),
 );
 
 // Events => listen => callback(err)

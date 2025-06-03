@@ -39,7 +39,7 @@ export const getCategory = async (req, res, next) => {
 // @route   POST /api/v1/categories
 // @access  Private
 export const createCategory = async (req, res) => {
-  const name = req.body.name;
+  const { name } = req.body;
   const category = await Category.create({ name, slug: slugify(name) });
   res.status(201).json({ data: category });
 };
@@ -54,7 +54,7 @@ export const updateCategory = async (req, res, next) => {
   const category = await Category.findOneAndUpdate(
     { _id: id },
     { name, slug: slugify(name) },
-    { new: true } // to return the data after update in response
+    { new: true }, // to return the data after update in response
   );
 
   if (!category) {
