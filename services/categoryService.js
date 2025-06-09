@@ -1,5 +1,5 @@
 import slugify from 'slugify';
-import Category from '../models/categoryModel.js';
+import { Category } from '../models/categoryModel.js';
 import { ApiError } from '../utils/apiError.js';
 
 // @desc    Get list of categories

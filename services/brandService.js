@@ -1,5 +1,5 @@
 import slugify from 'slugify';
-import Brand from '../models/brandModel.js';
+import { Brand } from '../models/brandModel.js';
 import { ApiError } from '../utils/apiError.js';
 
 // @desc    Get list of brands

@@ -17,10 +17,8 @@ const categorySchema = new mongoose.Schema(
     },
     image: String,
   },
-  { timestamps: true } // (created at / updated at)
+  { timestamps: true }, // (created at / updated at)
 );
 
 // 2- Create Model
-const Category = mongoose.model('Category', categorySchema);
-
-export default Category;
+export const Category = mongoose.model('Category', categorySchema);

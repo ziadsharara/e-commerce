@@ -1,5 +1,5 @@
 import slugify from 'slugify';
-import SubCategory from '../models/subCategoryModel.js';
+import { SubCategory } from '../models/subCategoryModel.js';
 import { ApiError } from '../utils/apiError.js';
 
 export const setCategoryIdToBody = (req, res, next) => {
