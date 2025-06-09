@@ -41,7 +41,7 @@ export const getCategory = async (req, res, next) => {
 export const createCategory = async (req, res) => {
   const { name } = req.body;
   const category = await Category.create({ name, slug: slugify(name) });
-  res.status(201).json({ data: category });
+  res.status(201).json({ success: true, data: category });
 };
 
 // @dec     Update specific category

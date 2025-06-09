@@ -1,10 +1,33 @@
 import express from 'express';
 
-import { createSubCategory } from '../services/subCategoryService.js';
-import { createSubCategoryValidator } from '../utils/validators/subCategoryValidator.js';
+import {
+  createSubCategory,
+  getSubCategories,
+  getSubCategory,
+  updateSubCategory,
+  deleteSubCategory,
+  setCategoryIdToBody,
+  createFilterObj,
+} from '../services/subCategoryService.js';
+import {
+  createSubCategoryValidator,
+  getSubCategoryValidator,
+  updateSubCategoryValidator,
+  deleteSubCategoryValidator,
+} from '../utils/validators/subCategoryValidator.js';
 
-const router = express.Router();
+// mergeParams: allow us to access parameters on other routers
+// ex: We need to access categoryId from category router
+const router = express.Router({ mergeParams: true });
 
-router.route('/').post(createSubCategoryValidator, createSubCategory);
+router
+  .route('/')
+  .post(setCategoryIdToBody, createSubCategoryValidator, createSubCategory)
+  .get(createFilterObj, getSubCategories);
+router
+  .route('/:id')
+  .get(getSubCategoryValidator, getSubCategory)
+  .put(updateSubCategoryValidator, updateSubCategory)
+  .delete(deleteSubCategoryValidator, deleteSubCategory);
 
 export default router;
