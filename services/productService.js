@@ -2,67 +2,26 @@ import slugify from 'slugify';
 import { Product } from '../models/productModel.js';
 import { Category } from '../models/categoryModel.js';
 import { ApiError } from '../utils/apiError.js';
-import qs from 'qs'; // Use qs to properly parse nested query parameters
+import ApiFeatures from '../utils/apiFeatures.js';
 
 // @desc    Get list of products
 // @route   GET /api/v1/products
 // @access  Public
 export const getProducts = async (req, res) => {
-  // 1) Filtering
-  const rawQuery = req._parsedUrl.query;
-  const queryObj = qs.parse(rawQuery);
-  const excludeFields = ['page', 'sort', 'limit', 'fields'];
-  excludeFields.forEach(field => delete queryObj[field]);
-
-  // Apply filtration using [gte, gt, lte, lt]
-  let queryStr = JSON.stringify(queryObj);
-  queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, match => `$${match}`);
-  const filter = JSON.parse(queryStr);
-
-  // 2) Pagination
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 50;
-  const skip = (page - 1) * limit;
-
   // Build query
-  let mongooseQuery = Product.find(filter)
-    .skip(skip)
-    .limit(limit)
-    .populate({ path: 'category', select: 'name -_id' });
-
-  // 3) Sorting
-  if (req.query.sort) {
-    // Remove spaces and empty values from sort string
-    const sortBy = req.query.sort
-      .split(',')
-      .map(s => s.trim())
-      .filter(Boolean)
-      .join(' ');
-    if (sortBy) {
-      mongooseQuery = mongooseQuery.sort(sortBy);
-      console.log(sortBy);
-    }
-  } else {
-    mongooseQuery = mongooseQuery.sort('-createAt');
-  }
-
-  // 4) Fields Limiting
-  if (req.query.fields) {
-    // title,ratingsAverage,ratingsAverage,price
-    const fields = req.query.fields.split(',').join(' ');
-    // title ratingsAverage ratingsAverage price
-    mongooseQuery = mongooseQuery.select(fields);
-  } else {
-    mongooseQuery = mongooseQuery.select('-__v');
-  }
+  const apiFeatures = new ApiFeatures(Product.find(), req.query)
+    .paginate()
+    .filter()
+    .search()
+    .limitFields()
+    .sort();
 
   // Execute query
-  const products = await mongooseQuery;
+  const products = await apiFeatures.mongooseQuery;
 
   res.status(200).json({
     success: true,
     results: products.length,
-    page,
     data: products,
   });
 };
