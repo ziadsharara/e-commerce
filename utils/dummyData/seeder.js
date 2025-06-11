@@ -1,8 +1,8 @@
-const fs = require('fs');
-require('colors');
-const dotenv = require('dotenv');
-const Product = require('../../models/productModel');
-const dbConnection = require('../../config/database');
+import fs from 'fs';
+import colors from 'colors';
+import dotenv from 'dotenv';
+import { Product } from '../../models/productModel.js';
+import dbConnection from '../../config/database.js';
 
 dotenv.config({ path: '../../config.env' });
 
