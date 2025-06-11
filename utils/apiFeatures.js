@@ -7,16 +7,14 @@ class ApiFeatures {
   }
 
   filter() {
-    // Parse query string if it's a raw string
-    let queryObj = this.queryStr;
-    if (typeof queryObj === 'string') {
-      queryObj = qs.parse(queryObj);
-    }
+    const queryObj = { ...this.queryStr };
     const excludeFields = ['page', 'sort', 'limit', 'fields', 'keyword'];
     excludeFields.forEach(field => delete queryObj[field]);
+
     let queryStr = JSON.stringify(queryObj);
     queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, match => `$${match}`);
     const filter = JSON.parse(queryStr);
+
     this.mongooseQuery = this.mongooseQuery.find(filter);
     return this;
   }

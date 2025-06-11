@@ -1,4 +1,5 @@
 import slugify from 'slugify';
+import qs from 'qs';
 import { Product } from '../models/productModel.js';
 import { Category } from '../models/categoryModel.js';
 import { ApiError } from '../utils/apiError.js';
@@ -8,15 +9,16 @@ import ApiFeatures from '../utils/apiFeatures.js';
 // @route   GET /api/v1/products
 // @access  Public
 export const getProducts = async (req, res) => {
-  // Build query
-  const apiFeatures = new ApiFeatures(Product.find(), req.query)
+  const rawQuery = req._parsedUrl.query;
+  const parsedQuery = qs.parse(rawQuery);
+
+  const apiFeatures = new ApiFeatures(Product.find(), parsedQuery)
     .paginate()
     .filter()
     .search()
     .limitFields()
     .sort();
 
-  // Execute query
   const products = await apiFeatures.mongooseQuery;
 
   res.status(200).json({
