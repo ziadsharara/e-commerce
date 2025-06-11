@@ -1,64 +1,79 @@
-<!--
-## E-Commerce Project
+# 🛒 E-Commerce RESTful API
 
-#### Status: 🚧 In Progress
--->
-### A fully-featured and scalable e-commerce backend built with **Node.js**, **Express.js**, and **MongoDB**. This RESTful API supports managing products, users, orders, authentication, payments, and more — following clean code principles, modular architecture, and secure design patterns.
+### ✅ Production-Ready Back-End for Online Stores  
+> A scalable and modular e-commerce back-end API built with **Node.js**, **Express.js**, and **MongoDB** — fully implemented and developed by me as a complete back-end solution for online shopping platforms.
 
 ---
 
-## 📦 Features
+## 🚀 Overview
 
-- ✅ **User Authentication & Authorization**
-  - Register, login, password reset (with email support)
-  - Role-based access control using JWT
-- 🛍️ **Product & Category Management**
-  - CRUD operations for categories, subcategories, brands, and products
-  - Image uploads (with Sharp) and filtering by price, rating, etc.
-- ⭐ **Product Reviews & Wishlist**
-  - Add/edit product reviews and manage wishlist items
-- 🛒 **Cart & Coupons**
-  - Add to cart, apply discount coupons, calculate totals
-- 📦 **Orders & Checkout**
-  - Cash on delivery (COD) & Stripe payment integration
-- 🔐 **Security**
-  - Helmet, rate limiting, input sanitization, and HPP protection
-- 🧪 **Testing**
-  - All endpoints tested with Postman
+This project provides a robust RESTful API for managing users, products, orders, payments, and more — following modern development practices including:
+
+- Clean architecture & modular structure
+- Secure authentication & authorization
+- File/image handling with Sharp
+- Payment integration with Stripe
+- Complete cart, orders, and review systems
+
+---
+
+## 📦 Key Features
+
+### 🔐 User Authentication & Authorization
+- User registration, login, and password reset (via email)
+- JWT-based access with roles (admin, manager, user)
+- Authorization middleware for route protection
+
+### 🛍️ Product Management
+- Full CRUD for products, categories, subcategories, and brands
+- Filtering by price, rating, category, brand, etc.
+- Sorting, searching, and pagination
+
+### 🖼️ Image Upload & Optimization
+- Upload single or multiple product images using Multer
+- Automatic resizing and compression using Sharp
+- File validation and error handling
+
+### ⭐ User Interaction
+- Users can add/edit/delete product reviews
+- Average rating and review count calculated per product
+- Wishlist functionality: add/remove products
+- Address book support for users
+
+### 🛒 Cart & Coupons
+- Add items to cart and update quantities
+- Apply discount coupons with expiration & limits
+- Auto-calculate subtotal, total, discounts
+
+### 💳 Orders & Payments
+- Place orders using Cash on Delivery or Stripe
+- Validate and process Stripe payments
+- Update order status (e.g., paid, delivered)
+
+### 🔐 Security Enhancements
+- Rate limiting, input sanitization, HPP protection
+- Helmet for HTTP headers
+- Centralized error handling with custom error classes
+
+### 📁 Clean Code Structure
+- Separation of concerns (controllers, models, services, routes, etc.)
+- Reusable utilities (email handling, validation, error formatting)
+- Environment-based configuration with `.env`
 
 ---
 
 ## 🧱 Tech Stack
 
-- **Node.js** / **Express.js**
-- **MongoDB** / **Mongoose**
-- **JWT** – Authentication
-- **Multer** – File uploads
-- **Sharp** – Image processing
-- **Stripe** – Online payments
-- **Nodemailer** – Email notifications
-- **dotenv**, **express-rate-limit**, **helmet**, **hpp**, and more
+| Layer           | Tech Used                            |
+|------------------|----------------------------------------|
+| Runtime          | Node.js                               |
+| Framework        | Express.js                            |
+| Database         | MongoDB + Mongoose                    |
+| Authentication   | JWT                                   |
+| File Uploads     | Multer + Sharp                        |
+| Payments         | Stripe                                |
+| Email Services   | Nodemailer                            |
+| Security         | Helmet, express-rate-limit, hpp, mongo-sanitize |
+| Validation       | express-validator + custom logic      |
 
----
 
-## 🗂️ Project Structure
-
-📁 config/ # DB and environment setup
-
-📁 controllers/ # Route logic handlers
-
-📁 middlewares/ # Custom middleware (auth, error, validation)
-
-📁 models/ # Mongoose models
-
-📁 routes/ # Express routers
-
-📁 utils/ # Helper functions (email, error handlers, etc.)
-
-📁 services/ # Business logic layer
-
-.env # Environment variables
-
-server.js # Entry point
-
----
