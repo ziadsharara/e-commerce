@@ -1,6 +1,6 @@
-# 🛒 E-Commerce RESTful API
+# Happy Shop E-Commerce RESTful API 🛒
 
-### ✅ Production-Ready Back-End for Online Stores  
+### Production-Ready Back-End for Online Stores  ✅
 > A scalable and modular e-commerce back-end API built with **Node.js**, **Express.js**, and **MongoDB** — fully implemented and developed by me as a complete back-end solution for online shopping platforms.
 
 ---
