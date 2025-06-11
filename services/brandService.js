@@ -1,19 +1,33 @@
 import slugify from 'slugify';
 import { Brand } from '../models/brandModel.js';
 import { ApiError } from '../utils/apiError.js';
+import ApiFeatures from '../utils/apiFeatures.js';
+import qs from 'qs';
 
 // @desc    Get list of brands
 // @route   GET /api/v1/brands
 // @access  Public
 export const getBrands = async (req, res) => {
-  const page = req.query.page * 1 || 1;
-  const limit = req.query.limit * 1 || 5;
-  const skip = (page - 1) * limit;
-  const brands = await Brand.find({}).skip(skip).limit(limit);
+  // Build query
+  const rawQuery = req._parsedUrl.query;
+  const parsedQuery = qs.parse(rawQuery);
+
+  const documentsCount = await Brand.countDocuments();
+  const apiFeatures = new ApiFeatures(Brand.find(), parsedQuery)
+    .paginate(documentsCount)
+    .filter()
+    .search()
+    .limitFields()
+    .sort();
+
+  // Execute query
+  const { mongooseQuery, paginationResult } = apiFeatures;
+  const brands = await apiFeatures.mongooseQuery;
+
   res.status(200).json({
     success: true,
     results: brands.length,
-    page,
+    paginationResult,
     data: brands,
   });
 };

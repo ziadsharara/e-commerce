@@ -1,19 +1,33 @@
 import slugify from 'slugify';
 import { Category } from '../models/categoryModel.js';
 import { ApiError } from '../utils/apiError.js';
+import ApiFeatures from '../utils/apiFeatures.js';
+import qs from 'qs';
 
 // @desc    Get list of categories
 // @route   GET /api/v1/categories
 // @access  Public
 export const getCategories = async (req, res) => {
-  const page = req.query.page * 1 || 1;
-  const limit = req.query.limit * 1 || 5;
-  const skip = (page - 1) * limit;
-  const categories = await Category.find({}).skip(skip).limit(limit);
+  // Build query
+  const rawQuery = req._parsedUrl.query;
+  const parsedQuery = qs.parse(rawQuery);
+
+  const documentsCount = await Category.countDocuments();
+  const apiFeatures = new ApiFeatures(Category.find(), parsedQuery)
+    .paginate(documentsCount)
+    .filter()
+    .search()
+    .limitFields()
+    .sort();
+
+  // Execute query
+  const { mongooseQuery, paginationResult } = apiFeatures;
+  const categories = await apiFeatures.mongooseQuery;
+
   res.status(200).json({
     success: true,
     results: categories.length,
-    page,
+    paginationResult,
     data: categories,
   });
 };

@@ -1,6 +1,8 @@
 import slugify from 'slugify';
 import { SubCategory } from '../models/subCategoryModel.js';
 import { ApiError } from '../utils/apiError.js';
+import ApiFeatures from '../utils/apiFeatures.js';
+import qs from 'qs';
 
 export const setCategoryIdToBody = (req, res, next) => {
   // Nested route
@@ -33,18 +35,26 @@ export const createFilterObj = (req, res, next) => {
 // @route   GET /api/v1/subcategories
 // @access  Public
 export const getSubCategories = async (req, res) => {
-  const page = req.query.page * 1 || 1;
-  const limit = req.query.limit * 1 || 5;
-  const skip = (page - 1) * limit;
+  // Build query
+  const rawQuery = req._parsedUrl.query;
+  const parsedQuery = qs.parse(rawQuery);
 
-  const subCategories = await SubCategory.find(req.filterObj)
-    .skip(skip)
-    .limit(limit);
-  // .populate({ path: 'category', select: 'name -_id' });
+  const documentsCount = await SubCategory.countDocuments();
+  const apiFeatures = new ApiFeatures(SubCategory.find(), parsedQuery)
+    .paginate(documentsCount)
+    .filter()
+    .search()
+    .limitFields()
+    .sort();
+
+  // Execute query
+  const { mongooseQuery, paginationResult } = apiFeatures;
+  const subCategories = await apiFeatures.mongooseQuery;
+
   res.status(200).json({
     success: true,
     results: subCategories.length,
-    page,
+    paginationResult,
     data: subCategories,
   });
 };

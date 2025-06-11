@@ -9,21 +9,26 @@ import ApiFeatures from '../utils/apiFeatures.js';
 // @route   GET /api/v1/products
 // @access  Public
 export const getProducts = async (req, res) => {
+  // Build query
   const rawQuery = req._parsedUrl.query;
   const parsedQuery = qs.parse(rawQuery);
 
+  const documentsCount = await Product.countDocuments();
   const apiFeatures = new ApiFeatures(Product.find(), parsedQuery)
-    .paginate()
+    .paginate(documentsCount)
     .filter()
-    .search()
+    .search('Products')
     .limitFields()
     .sort();
 
+  // Execute query
+  const { mongooseQuery, paginationResult } = apiFeatures;
   const products = await apiFeatures.mongooseQuery;
 
   res.status(200).json({
     success: true,
     results: products.length,
+    paginationResult,
     data: products,
   });
 };
