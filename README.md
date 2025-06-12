@@ -74,6 +74,6 @@ This project provides a robust RESTful API for managing users, products, orders,
 | Payments         | Stripe                                |
 | Email Services   | Nodemailer                            |
 | Security         | Helmet, express-rate-limit, hpp, mongo-sanitize |
-| Validation       | express-validator + custom logic      |
+| Validation       | Custom logic      |
 
 
