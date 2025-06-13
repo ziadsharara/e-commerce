@@ -1,3 +1,6 @@
+import path, { dirname } from 'path';
+import { fileURLToPath } from 'url';
+
 import express from 'express';
 import dotenv from 'dotenv';
 import morgan from 'morgan'; // HTTP request logger middleware
@@ -19,11 +22,16 @@ dotenv.config({ path: 'config.env' }); // Setting the .env variables
 // Connect with db
 dbConnection();
 
+// To handle paths
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 // Express app
 const app = express();
 
 // Middlewares
 app.use(express.json());
+app.use(express.static(path.join(__dirname, 'uploads')));
 
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
