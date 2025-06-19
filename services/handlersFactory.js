@@ -1,3 +1,4 @@
+import { Model } from 'mongoose';
 import { ApiError } from '../utils/apiError.js';
 import ApiFeatures from '../utils/apiFeatures.js';
 import qs from 'qs';
@@ -12,6 +13,18 @@ export const deleteOne = Model => async (req, res, next) => {
   res
     .status(200)
     .json({ success: true, message: 'Document deleted successfully!' });
+};
+
+export const deleteAll = Model => async (req, res, next) => {
+  const result = await Model.deleteMany();
+
+  if (!result) return next(new ApiError('No document to delete!'));
+
+  res.status(200).json({
+    success: true,
+    message: `All documents deleted successfully!`,
+    deletedCount: result.deletedCount,
+  });
 };
 
 export const updateOne = Model => async (req, res, next) => {
