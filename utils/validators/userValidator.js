@@ -1,6 +1,7 @@
 import { check, body } from 'express-validator';
 import { validatorMiddleware } from '../../middlewares/validatorMiddleware.js';
 import slugify from 'slugify';
+import bcrypt from 'bcryptjs';
 import { User } from '../../models/userModel.js';
 
 export const createUserValidator = [
@@ -66,6 +67,61 @@ export const updateUserValidator = [
     .optional()
     .custom((val, { req }) => {
       req.body.slug = slugify(val);
+      return true;
+    }),
+  check('email')
+    .notEmpty()
+    .withMessage('Email required!')
+    .isEmail()
+    .withMessage('Invalid email address!')
+    .custom(val =>
+      User.findOne({ email: val }).then(user => {
+        if (user) {
+          return Promise.reject(new Error('Email already in user!'));
+        }
+      }),
+    ),
+  check('phone')
+    .optional()
+    .isMobilePhone('ar-EG', 'ar-SA')
+    .withMessage(
+      'Invalid phone number, only accepted Egy and SA phone number!',
+    ),
+
+  check('profileImg').optional(),
+
+  check('role').optional(),
+  validatorMiddleware,
+];
+
+export const changeUserPasswordValidator = [
+  check('id').isMongoId().withMessage('Invalid user id formate'),
+  body('currentPassword')
+    .notEmpty()
+    .withMessage('You must enter your current password'),
+  body('passwordConfirm')
+    .notEmpty()
+    .withMessage('You must enter your the password confirm'),
+  body('password')
+    .notEmpty()
+    .withMessage('You must enter your new password')
+    .custom(async (val, { req }) => {
+      // 1) Verify current password
+      const user = await User.findById(req.params.id);
+      if (!user) {
+        throw new Error('There is no user for this id');
+      }
+      const isCorrectPassword = await bcrypt.compare(
+        req.body.currentPassword,
+        user.password,
+      );
+      if (!isCorrectPassword) {
+        throw new Error('Incorrect current password!');
+      }
+      // 2) Verify password confirm
+      if (val !== req.body.passwordConfirm) {
+        throw new Error('Password Confirmation incorrect!');
+      }
       return true;
     }),
   validatorMiddleware,

@@ -3,6 +3,7 @@ import {
   getUserValidator,
   createUserValidator,
   updateUserValidator,
+  changeUserPasswordValidator,
   deleteUserValidator,
 } from '../utils/validators/userValidator.js';
 
@@ -11,6 +12,7 @@ import {
   getUser,
   createUser,
   updateUser,
+  changeUserPassword,
   deleteUser,
   deleteAllUsers,
   uploadUserImage,
@@ -18,6 +20,12 @@ import {
 } from '../services/userService.js';
 
 const router = express.Router();
+
+router.put(
+  '/changePassword/:id',
+  changeUserPasswordValidator,
+  changeUserPassword,
+);
 
 router
   .route('/')

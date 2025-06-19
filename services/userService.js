@@ -1,4 +1,5 @@
 import { User } from '../models/userModel.js';
+import bcrypt from 'bcryptjs';
 import sharp from 'sharp';
 import path, { dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -12,6 +13,7 @@ import {
   deleteAll,
 } from './handlersFactory.js';
 import { uploadSingleImage } from '../middlewares/uploadImageMiddleware.js';
+import { ApiError } from '../utils/apiError.js';
 
 // To handle paths
 const __filename = fileURLToPath(import.meta.url);
@@ -56,7 +58,49 @@ export const createUser = createOne(User);
 // @dec     Update specific user
 // @route   PUT /api/v1/users/:id
 // @access  Private
-export const updateUser = updateOne(User);
+export const updateUser = async (req, res, next) => {
+  const { id } = req.params;
+  const { name } = req.body;
+  // findOneAndUpdate(filter, update, options)
+  const document = await User.findByIdAndUpdate(
+    req.params.id,
+    {
+      name: req.body.name,
+      slug: req.body.slug,
+      phone: req.body.phone,
+      email: req.body.email,
+      profileImg: req.body.profileImg,
+      role: req.body.role,
+    },
+    { new: true }, // to return the data after update in response
+  );
+
+  if (!document) {
+    return next(new ApiError(`No document for this id ${req.params.id}`, 404));
+  }
+  res.status(200).json({ success: true, data: document });
+};
+
+// @dec     Change user password
+// @route   PUT /api/v1/users/changePassword/:id
+// @access  Private
+export const changeUserPassword = async (req, res, next) => {
+  const { id } = req.params;
+  const { name } = req.body;
+  // findOneAndUpdate(filter, update, options)
+  const document = await User.findByIdAndUpdate(
+    req.params.id,
+    {
+      password: await bcrypt.hash(req.body.password, 12),
+    },
+    { new: true }, // to return the data after update in response
+  );
+
+  if (!document) {
+    return next(new ApiError(`No document for this id ${req.params.id}`, 404));
+  }
+  res.status(200).json({ success: true, data: document });
+};
 
 // @dec     Delete specific user
 // @route   DELETE /api/v1/users/:id
