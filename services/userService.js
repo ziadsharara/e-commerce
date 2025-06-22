@@ -110,3 +110,25 @@ export const deleteUser = deleteOne(User);
 // @route   DELETE /api/v1/users
 // @access  Private/Admin
 export const deleteAllUsers = deleteAll(User);
+
+// @desc    Get logged user data
+// @route   GET /api/v1/users/getMe
+// @access  Private/Protect
+export const getLoggedUserData = async (req, res, next) => {
+  req.params.id = req.user._id;
+  next();
+};
+
+// @desc    Update logged user password
+// @route   PUT /api/v1/users/updateMyPassword
+// @access  Private/Protect
+export const updateLoggedUserPassword = async (req, res, next) => {
+  const document = await User.findByIdAndUpdate(
+    req.user._id,
+    {
+      password: await bcrypt.hash(req.body.password, 12),
+      passwordChangedAt: Date.now(),
+    },
+    { new: true },
+  );
+};
