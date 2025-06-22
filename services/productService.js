@@ -83,14 +83,14 @@ export const getProduct = getOne(Product);
 
 // @desc    Create Product
 // @route   POST /api/v1/products
-// @access  Private
+// @access  Private/Admin-Manager
 export const createProduct = createOne(Product);
 // @dec     Update specific product
 // @route   PUT /api/v1/products/:id
-// @access  Private
+// @access  Private/Admin-Manager
 export const updateProduct = updateOne(Product);
 
 // @dec     Delete specific product
 // @route   DELETE /api/v1/products/:id
-// @access  Private
+// @access  Private/Admin
 export const deleteProduct = deleteOne(Product);

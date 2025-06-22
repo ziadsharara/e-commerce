@@ -24,12 +24,13 @@ export const resizeImage = async (req, res, next) => {
   const filename = `category-${uuidv4()}-${Date.now()}.jpeg`;
   const imagePath = path.join(__dirname, `../uploads/categories/${filename}`);
 
-  await sharp(req.file.buffer)
-    .resize(600, 600)
-    .toFormat('jpeg')
-    .jpeg({ quality: 90 })
-    .toFile(imagePath);
-
+  if (req.file) {
+    await sharp(req.file.buffer)
+      .resize(600, 600)
+      .toFormat('jpeg')
+      .jpeg({ quality: 90 })
+      .toFile(imagePath);
+  }
   // sava image into our database
   req.body.image = filename;
 
@@ -48,14 +49,14 @@ export const getCategory = getOne(Category);
 
 // @desc    Create Category
 // @route   POST /api/v1/categories
-// @access  Private
+// @access  Private/Admin-Manager
 export const createCategory = createOne(Category);
 
 // @dec     Update specific category
 // @route   PUT /api/v1/categories/:id
-// @access  Private
+// @access  Private/Admin-Manager
 export const updateCategory = updateOne(Category);
 // @dec     Delete specific category
 // @route   DELETE /api/v1/categories/:id
-// @access  Private
+// @access  Private/Admin
 export const deleteCategory = deleteOne(Category);

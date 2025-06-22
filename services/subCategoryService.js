@@ -34,15 +34,15 @@ export const getSubCategory = getOne(SubCategory);
 
 // @desc    Create subCategory
 // @route   POST /api/v1/subcategories
-// @access  Private
+// @access  Private/Admin-Manager
 export const createSubCategory = createOne(SubCategory);
 
 // @dec     Update specific subCategory
 // @route   PUT /api/v1/subcategories/:id
-// @access  Private
+// @access  Private/Admin-Manager
 export const updateSubCategory = updateOne(SubCategory);
 
 // @dec     Delete specific subCategory
 // @route   DELETE /api/v1/subcategories/:id
-// @access  Private
+// @access  Private/Admin
 export const deleteSubCategory = deleteOne(SubCategory);

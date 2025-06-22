@@ -24,12 +24,13 @@ export const resizeImage = async (req, res, next) => {
   const filename = `brand-${uuidv4()}-${Date.now()}.jpeg`;
   const imagePath = path.join(__dirname, `../uploads/brands/${filename}`);
 
-  await sharp(req.file.buffer)
-    .resize(600, 600)
-    .toFormat('jpeg')
-    .jpeg({ quality: 90 })
-    .toFile(imagePath);
-
+  if (req.file) {
+    await sharp(req.file.buffer)
+      .resize(600, 600)
+      .toFormat('jpeg')
+      .jpeg({ quality: 90 })
+      .toFile(imagePath);
+  }
   // sava image into our database
   req.body.image = filename;
 
@@ -48,15 +49,15 @@ export const getBrand = getOne(Brand);
 
 // @desc    Create Brand
 // @route   POST /api/v1/brands
-// @access  Private
+// @access  Private/Admin-Manager
 export const createBrand = createOne(Brand);
 
 // @dec     Update specific brand
 // @route   PUT /api/v1/brands/:id
-// @access  Private
+// @access  Private/Admin-Manager
 export const updateBrand = updateOne(Brand);
 
 // @dec     Delete specific brand
 // @route   DELETE /api/v1/brands/:id
-// @access  Private
+// @access  Private/Admin
 export const deleteBrand = deleteOne(Brand);

@@ -19,6 +19,8 @@ import {
   resizeImage,
 } from '../services/userService.js';
 
+import * as authService from '../services/authService.js';
+
 const router = express.Router();
 
 router.put(
@@ -29,13 +31,37 @@ router.put(
 
 router
   .route('/')
-  .get(getUsers)
-  .post(uploadUserImage, resizeImage, createUserValidator, createUser)
-  .delete(deleteAllUsers);
+  .get(authService.protect, authService.allowedTo('admin'), getUsers)
+  .post(
+    authService.protect,
+    authService.allowedTo('admin'),
+    uploadUserImage,
+    resizeImage,
+    createUserValidator,
+    createUser,
+  )
+  .delete(authService.protect, authService.allowedTo('admin'), deleteAllUsers);
 router
   .route('/:id')
-  .get(getUserValidator, getUser)
-  .put(uploadUserImage, resizeImage, updateUserValidator, updateUser)
-  .delete(deleteUserValidator, deleteUser);
+  .get(
+    authService.protect,
+    authService.allowedTo('admin'),
+    getUserValidator,
+    getUser,
+  )
+  .put(
+    authService.protect,
+    authService.allowedTo('admin'),
+    uploadUserImage,
+    resizeImage,
+    updateUserValidator,
+    updateUser,
+  )
+  .delete(
+    authService.protect,
+    authService.allowedTo('admin'),
+    deleteUserValidator,
+    deleteUser,
+  );
 
 export default router;

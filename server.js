@@ -18,6 +18,7 @@ import subCategoryRoute from './routes/subCategoryRoute.js';
 import brandRoute from './routes/brandRoute.js';
 import productRoute from './routes/productRoute.js';
 import userRoute from './routes/userRoute.js';
+import authRoute from './routes/authRoute.js';
 
 dotenv.config({ path: 'config.env' }); // Setting the .env variables
 // Connect with db
@@ -45,6 +46,7 @@ app.use('/api/v1/subcategories', subCategoryRoute);
 app.use('/api/v1/brands', brandRoute);
 app.use('/api/v1/products', productRoute);
 app.use('/api/v1/users', userRoute);
+app.use('/api/v1/auth', authRoute);
 
 // Generate error handling middleware for express
 app.use((req, res, next) => {

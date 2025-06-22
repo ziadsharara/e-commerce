@@ -42,22 +42,22 @@ export const resizeImage = async (req, res, next) => {
 
 // @desc    Get list of users
 // @route   GET /api/v1/users
-// @access  Private
+// @access  Private/Admin
 export const getUsers = getAll(User);
 
 // @dec     Get specific user by id
 // @route   GET /api/v1/users/:id
-// @access  Private
+// @access  Private/Admin
 export const getUser = getOne(User);
 
 // @desc    Create User
 // @route   POST /api/v1/users
-// @access  Private
+// @access  Private/Admin
 export const createUser = createOne(User);
 
 // @dec     Update specific user
 // @route   PUT /api/v1/users/:id
-// @access  Private
+// @access  Private/Admin
 export const updateUser = async (req, res, next) => {
   const { id } = req.params;
   const { name } = req.body;
@@ -83,15 +83,14 @@ export const updateUser = async (req, res, next) => {
 
 // @dec     Change user password
 // @route   PUT /api/v1/users/changePassword/:id
-// @access  Private
+// @access  Private/Admin
 export const changeUserPassword = async (req, res, next) => {
-  const { id } = req.params;
-  const { name } = req.body;
   // findOneAndUpdate(filter, update, options)
   const document = await User.findByIdAndUpdate(
     req.params.id,
     {
       password: await bcrypt.hash(req.body.password, 12),
+      passwordChangedAt: Date.now(),
     },
     { new: true }, // to return the data after update in response
   );
@@ -104,10 +103,10 @@ export const changeUserPassword = async (req, res, next) => {
 
 // @dec     Delete specific user
 // @route   DELETE /api/v1/users/:id
-// @access  Private
+// @access  Private/Admin
 export const deleteUser = deleteOne(User);
 
 // @dec     Delete all users
 // @route   DELETE /api/v1/users
-// @access  Private
+// @access  Private/Admin
 export const deleteAllUsers = deleteAll(User);
