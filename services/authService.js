@@ -3,12 +3,7 @@ import bcrypt from 'bcryptjs';
 
 import { ApiError } from '../utils/apiError.js';
 import { User } from '../models/userModel.js';
-import sendEmail from '../utils/sendEmail.js';
-
-const generateToken = payload =>
-  jwt.sign({ userId: payload }, process.env.JWT_SECRET_KEY, {
-    expiresIn: process.env.JWT_EXPIRE_TIME,
-  });
+import generateToken from '../utils/generateToken.js';
 
 // @desc    Signup
 // @route   POST /api/v1/auth/signup

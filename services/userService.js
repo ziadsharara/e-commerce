@@ -14,6 +14,7 @@ import {
 } from './handlersFactory.js';
 import { uploadSingleImage } from '../middlewares/uploadImageMiddleware.js';
 import { ApiError } from '../utils/apiError.js';
+import generateToken from '../utils/generateToken.js';
 
 // To handle paths
 const __filename = fileURLToPath(import.meta.url);
@@ -120,10 +121,11 @@ export const getLoggedUserData = async (req, res, next) => {
 };
 
 // @desc    Update logged user password
-// @route   PUT /api/v1/users/updateMyPassword
+// @route   PUT /api/v1/users/changeMyPassword
 // @access  Private/Protect
-export const updateLoggedUserPassword = async (req, res, next) => {
-  const document = await User.findByIdAndUpdate(
+export const changeLoggedUserPassword = async (req, res, next) => {
+  // Update user password based on user payload (req.user._id)
+  const user = await User.findByIdAndUpdate(
     req.user._id,
     {
       password: await bcrypt.hash(req.body.password, 12),
@@ -131,4 +133,37 @@ export const updateLoggedUserPassword = async (req, res, next) => {
     },
     { new: true },
   );
+
+  // Generate token
+  const token = generateToken(user._id);
+
+  res.status(200).json({ Success: true, data: user, token });
+};
+
+// @desc    Update logged user data (without password, role)
+// @route   PUT /api/v1/users/updateMe
+// @access  Private/Protect
+export const updateLoggedUserData = async (req, res, next) => {
+  const updatedUser = await User.findByIdAndUpdate(
+    req.user._id,
+    {
+      name: req.body.name,
+      email: req.body.email,
+      phone: req.body.phone,
+    },
+    { new: true },
+  );
+
+  res.status(200).json({ Success: true, data: updatedUser });
+};
+
+// @desc    Deactivate logged user
+// @route   DELETE /api/v1/users/deleteMe
+// @access  Private/Protect
+export const deleteLoggedUser = async (req, res, next) => {
+  await User.findByIdAndUpdate(req.user._id, { active: false });
+
+  res
+    .status(200)
+    .json({ Success: true, Message: 'User Deactivated Successfully!' });
 };

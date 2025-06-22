@@ -3,6 +3,7 @@ import {
   getUserValidator,
   createUserValidator,
   updateUserValidator,
+  updateLoggedUserValidator,
   changeUserPasswordValidator,
   deleteUserValidator,
 } from '../utils/validators/userValidator.js';
@@ -13,8 +14,11 @@ import {
   getLoggedUserData,
   createUser,
   updateUser,
+  updateLoggedUserData,
   changeUserPassword,
+  changeLoggedUserPassword,
   deleteUser,
+  deleteLoggedUser,
   deleteAllUsers,
   uploadUserImage,
   resizeImage,
@@ -24,10 +28,15 @@ import * as authService from '../services/authService.js';
 
 const router = express.Router();
 
-router.get('/getMe', authService.protect, getLoggedUserData, getUser);
+router.use(authService.protect);
+
+router.get('/getMe', getLoggedUserData, getUser);
+router.put('/changeMyPassword', changeLoggedUserPassword);
+router.put('/updateMe', updateLoggedUserValidator, updateLoggedUserData);
+router.delete('/deleteMe', deleteLoggedUser);
 
 // Admin
-router.use(authService.protect, authService.allowedTo('admin'));
+router.use(authService.allowedTo('admin'));
 
 router.put(
   '/changePassword/:id',
