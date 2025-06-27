@@ -11,6 +11,7 @@ export const createCouponValidator = [
   check('name')
     .notEmpty()
     .withMessage('Coupon Required')
+    .toUpperCase()
     .custom(val =>
       Coupon.findOne({ name: val }).then(coupon => {
         if (coupon) {
@@ -25,16 +26,13 @@ export const createCouponValidator = [
 export const updateCouponValidator = [
   check('id').isMongoId().withMessage('Invalid coupon id format'),
 
-  check('name')
-    .notEmpty()
-    .withMessage('Coupon Required')
-    .custom(val =>
-      Coupon.findOne({ name: val }).then(coupon => {
-        if (coupon) {
-          return Promise.reject(new Error('Coupon already exist!'));
-        }
-      }),
-    ),
+  check('name').custom(val =>
+    Coupon.findOne({ name: val }).then(coupon => {
+      if (coupon) {
+        return Promise.reject(new Error('Coupon already exist!'));
+      }
+    }),
+  ),
 
   validatorMiddleware,
 ];
