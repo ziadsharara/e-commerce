@@ -10,6 +10,7 @@ export const deleteOne = Model => async (req, res, next) => {
   if (!document) {
     return next(new ApiError(`No document for this id ${id}`, 404));
   }
+
   res
     .status(200)
     .json({ success: true, message: 'Document deleted successfully!' });
@@ -18,7 +19,8 @@ export const deleteOne = Model => async (req, res, next) => {
 export const deleteAll = Model => async (req, res, next) => {
   const result = await Model.deleteMany();
 
-  if (!result) return next(new ApiError('No document to delete!'));
+  if (result.deletedCount === 0)
+    return next(new ApiError('No document to delete!', 404));
 
   res.status(200).json({
     success: true,
@@ -28,8 +30,6 @@ export const deleteAll = Model => async (req, res, next) => {
 };
 
 export const updateOne = Model => async (req, res, next) => {
-  const { id } = req.params;
-  const { name } = req.body;
   // findOneAndUpdate(filter, update, options)
   const document = await Model.findByIdAndUpdate(
     req.params.id,
@@ -40,6 +40,10 @@ export const updateOne = Model => async (req, res, next) => {
   if (!document) {
     return next(new ApiError(`No document for this id ${req.params.id}`, 404));
   }
+
+  // Trigger 'save' event when update document
+  document.save();
+
   res.status(200).json({ success: true, data: document });
 };
 
@@ -48,9 +52,16 @@ export const createOne = Model => async (req, res) => {
   res.status(201).json({ success: true, data: document });
 };
 
-export const getOne = Model => async (req, res, next) => {
+export const getOne = (Model, populationOption) => async (req, res, next) => {
   const { id } = req.params;
-  const document = await Model.findById(id);
+  // 1) Build query
+  let query = Model.findById(id);
+  if (populationOption) {
+    query.populate(populationOption);
+  }
+
+  // 2) Execute query
+  const document = await query;
   if (!document) {
     // ApiError('message', statusCode)
     return next(new ApiError(`No document for this id ${id}`, 404));

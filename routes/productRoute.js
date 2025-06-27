@@ -14,10 +14,16 @@ import {
   uploadProductImages,
   resizeProductImages,
 } from '../services/productService.js';
+import reviewsRoute from './reviewRoute.js';
 
 import * as authService from '../services/authService.js';
 
 const router = express.Router();
+
+// POST   /products/6848a0ed67b165999b3e5d4b/reviews
+// GET   /products/6848a0ed67b165999b3e5d4b/reviews
+// GET   /products/6848a0ed67b165999b3e5d4b/reviews/685b5f783513465f4c881929
+router.use('/:productId/reviews', reviewsRoute);
 
 router
   .route('/')
