@@ -185,9 +185,10 @@ export const webhookCheckout = async (req, res, next) => {
       process.env.STRIPE_WEBHOOK_SECRET,
     );
   } catch (err) {
-    return res
-      .status(400)
-      .send(`⚠️  Webhook signature verification failed.`, err.message);
+    return res.status(400).json({
+      error: 'Webhook signature verification failed',
+      message: err.message,
+    });
   }
 
   if (event.type === 'checkout.session.completed') {
