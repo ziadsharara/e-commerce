@@ -6,6 +6,7 @@ import {
   findSpecificOrder,
   updateOrderToDelivered,
   updateOrderToPay,
+  checkoutSession,
 } from '../services/orderService.js';
 
 import * as authService from '../services/authService.js';
@@ -13,6 +14,10 @@ import * as authService from '../services/authService.js';
 const router = express.Router();
 
 router.use(authService.protect);
+
+router
+  .route('/checkout-session/:cartId')
+  .get(authService.allowedTo('user'), checkoutSession);
 
 router.route('/:cartId').post(createCashOrder);
 router

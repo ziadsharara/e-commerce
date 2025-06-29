@@ -1,14 +1,13 @@
 import { Order } from '../models/orderModel.js';
 import { Cart } from '../models/cartModel.js';
 import { Product } from '../models/productModel.js';
-import {
-  createOne,
-  deleteOne,
-  getAll,
-  getOne,
-  updateOne,
-} from './handlersFactory.js';
+import { getAll, getOne } from './handlersFactory.js';
 import { ApiError } from '../utils/apiError.js';
+import Stripe from 'stripe';
+import dotenv from 'dotenv';
+dotenv.config({ path: 'config.env' });
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 // @desc    Create cash order
 // @route   POST /api/v1/orders/cartId
@@ -119,4 +118,56 @@ export const updateOrderToDelivered = async (req, res, next) => {
   const updatedOrder = await order.save();
 
   res.status(200).json({ Success: true, data: updatedOrder });
+};
+
+// @desc    Get checkout session from stripe and send it as response
+// @route   GET /api/v1/orders/checkout-session/:cartId
+// @access  Private/User
+export const checkoutSession = async (req, res, next) => {
+  console.log('KEY:', process.env.STRIPE_SECRET_KEY);
+  // App settings
+  const taxPrice = 0;
+  const shippingPrice = 0;
+
+  // 1) Get cart depend on cartId
+  const cart = await Cart.findById(req.params.cartId);
+  if (!cart) {
+    return next(
+      new ApiError(`There is no cart with this id ${req.params.cartId}`, 404),
+    );
+  }
+
+  // 2) Get order price depend on cart price "Check if coupon applied !"
+  const cartPrice = cart.totalPriceAfterDiscount
+    ? cart.totalPriceAfterDiscount
+    : cart.totalCartPrice;
+
+  const totalOrderPrice = cartPrice + taxPrice + shippingPrice;
+
+  // 3) Create stripe checkout session
+  const session = await stripe.checkout.sessions.create({
+    line_items: [
+      {
+        price_data: {
+          currency: 'egp',
+          product_data: {
+            name: req.user.name,
+          },
+          unit_amount: totalOrderPrice * 100,
+        },
+        quantity: 1,
+      },
+    ],
+    mode: 'payment',
+    success_url: `${req.protocol}://${req.get('host')}/orders`,
+    cancel_url: `${req.protocol}://${req.get('host')}/cart`,
+    customer_email: req.user.email,
+    client_reference_id: req.params.cartId,
+    metadata: {
+      ...(req.body?.shippingAddress || {}),
+    },
+  });
+
+  // 4) Send session to response
+  res.status(200).json({ Success: true, session });
 };

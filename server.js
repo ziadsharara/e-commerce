@@ -4,6 +4,8 @@ import { fileURLToPath } from 'url';
 import express from 'express';
 import dotenv from 'dotenv';
 import morgan from 'morgan'; // HTTP request logger middleware
+import cors from 'cors';
+import compression from 'compression';
 
 // Error handling
 import { ApiError } from './utils/apiError.js';
@@ -25,6 +27,12 @@ const __dirname = dirname(__filename);
 
 // Express app
 const app = express();
+
+// Enable other domains to access my application
+app.use(cors());
+
+// Compress all responses
+app.use(compression());
 
 // Middlewares
 app.use(express.json());
