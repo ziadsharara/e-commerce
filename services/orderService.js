@@ -173,6 +173,7 @@ export const checkoutSession = async (req, res, next) => {
 };
 
 export const webhookCheckout = async (req, res, next) => {
+  console.log('✅ Webhook endpoint hit');
   // Get the signature sent by Stripe
   const signature = req.headers['stripe-signature'];
 
