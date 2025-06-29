@@ -176,7 +176,7 @@ export const webhookCheckout = async (req, res, next) => {
   let event = req.body;
   // Only verify the event if you have an endpoint secret defined.
   // Otherwise use the basic event deserialized with JSON.parse
-  if (endpointSecret) {
+  if (process.env.STRIPE_WEBHOOK_SECRET) {
     // Get the signature sent by Stripe
     const signature = req.headers['stripe-signature'];
     try {
