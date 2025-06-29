@@ -194,7 +194,7 @@ export const webhookCheckout = async (req, res, next) => {
     });
   }
 
-  if (event.type === 'payment_intent.succeeded') {
-    console.log('Create Order Here...');
+  if (event.type === 'checkout.session.completed') {
+    console.log(event.data.object);
   }
 };
