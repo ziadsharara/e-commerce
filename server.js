@@ -31,7 +31,7 @@ s;
 const app = express();
 
 // Checkout webhook
-import webhookApp from './webhookApp.js';
+import webhookApp from './utils/webhookApp.js';
 app.use(webhookApp);
 
 // Enable other domains to access my application
