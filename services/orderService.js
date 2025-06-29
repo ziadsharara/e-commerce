@@ -172,8 +172,10 @@ export const checkoutSession = async (req, res, next) => {
   res.status(200).json({ Success: true, session });
 };
 
+// @desc    This webhook will run when stripe payment success paid
+// @route   POST /webhook-checkout
+// @access  Protected/User
 export const webhookCheckout = async (req, res, next) => {
-  console.log('✅ Webhook endpoint hit');
   // Get the signature sent by Stripe
   const signature = req.headers['stripe-signature'];
 
@@ -192,7 +194,7 @@ export const webhookCheckout = async (req, res, next) => {
     });
   }
 
-  if (event.type === 'checkout.session.completed') {
+  if (event.type === 'payment_intent.succeeded') {
     console.log('Create Order Here...');
   }
 };
