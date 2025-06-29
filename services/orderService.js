@@ -205,8 +205,6 @@ const createCartOrder = async session => {
     // Clear cart depend on cartId
     await Cart.findByIdAndDelete(cartId);
   }
-
-  res.status(200).json({ Success: true, received: true });
 };
 // @desc    This webhook will run when stripe payment success paid
 // @route   POST /webhook-checkout
@@ -232,6 +230,9 @@ export const webhookCheckout = async (req, res, next) => {
 
   if (event.type === 'checkout.session.completed') {
     // Create order
-    createCartOrder(event.data.object);
+    await createCartOrder(event.data.object);
+    res.status(200).json({ received: true });
   }
+
+  res.status(200).json({ message: 'Event received' });
 };
