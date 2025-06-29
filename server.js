@@ -30,8 +30,11 @@ const __dirname = dirname(__filename);
 const app = express();
 
 // Checkout webhook
-import webhookApp from './utils/webhookApp.js';
-app.use(webhookApp);
+app.post(
+  '/webhook-checkout',
+  express.raw({ type: 'application/json' }),
+  webhookCheckout,
+);
 
 // Enable other domains to access my application
 app.use(cors());
