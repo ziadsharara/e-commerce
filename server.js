@@ -26,7 +26,6 @@ dbConnection();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-s;
 // Express app
 const app = express();
 
