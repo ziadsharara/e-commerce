@@ -221,11 +221,11 @@ export const webhookCheckout = async (req, res, next) => {
       signature,
       process.env.STRIPE_WEBHOOK_SECRET,
     );
+    console.log('✅ Webhook verified');
+    console.log('🔍 Stripe Event Type:', event.type); // <== هنا
   } catch (err) {
-    return res.status(400).json({
-      error: 'Webhook signature verification failed',
-      message: err.message,
-    });
+    console.error('❌ Webhook verification failed:', err.message);
+    return res.status(400).json({ error: err.message });
   }
 
   if (event.type === 'checkout.session.completed') {
