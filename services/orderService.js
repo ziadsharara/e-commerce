@@ -173,24 +173,23 @@ export const checkoutSession = async (req, res, next) => {
 };
 
 export const webhookCheckout = async (req, res, next) => {
-  let event = req.body;
-  // Only verify the event if you have an endpoint secret defined.
-  // Otherwise use the basic event deserialized with JSON.parse
-  if (process.env.STRIPE_WEBHOOK_SECRET) {
-    // Get the signature sent by Stripe
-    const signature = req.headers['stripe-signature'];
-    try {
-      event = stripe.webhooks.constructEvent(
-        req.body,
-        signature,
-        process.env.STRIPE_WEBHOOK_SECRET,
-      );
-    } catch (err) {
-      return res
-        .status(400)
-        .send(`⚠️  Webhook signature verification failed.`, err.message);
-    }
+  // Get the signature sent by Stripe
+  const signature = req.headers['stripe-signature'];
+
+  let event;
+
+  try {
+    event = stripe.webhooks.constructEvent(
+      req.body,
+      signature,
+      process.env.STRIPE_WEBHOOK_SECRET,
+    );
+  } catch (err) {
+    return res
+      .status(400)
+      .send(`⚠️  Webhook signature verification failed.`, err.message);
   }
+
   if (event.type === 'checkout.session.completed') {
     console.log('Create Order Here...');
   }
