@@ -29,18 +29,18 @@ const __dirname = dirname(__filename);
 // Express app
 const app = express();
 
-// Enable other domains to access my application
-app.use(cors());
-
-// Compress all responses
-app.use(compression());
-
 // Checkout webhook
 app.post(
   '/webhook-checkout',
   express.raw({ type: 'application/json' }),
   webhookCheckout,
 );
+
+// Enable other domains to access my application
+app.use(cors());
+
+// Compress all responses
+app.use(compression());
 
 // Middlewares
 app.use(express.json());

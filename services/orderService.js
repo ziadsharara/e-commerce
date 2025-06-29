@@ -210,9 +210,7 @@ const createCartOrder = async session => {
 // @route   POST /webhook-checkout
 // @access  Protected/User
 export const webhookCheckout = async (req, res, next) => {
-  // Get the signature sent by Stripe
   const signature = req.headers['stripe-signature'];
-
   let event;
 
   try {
@@ -221,18 +219,16 @@ export const webhookCheckout = async (req, res, next) => {
       signature,
       process.env.STRIPE_WEBHOOK_SECRET,
     );
-    console.log('✅ Webhook verified');
-    console.log('🔍 Stripe Event Type:', event.type); // <== هنا
+
+    console.log('✅ Stripe Event:', event.type);
+
+    if (event.type === 'checkout.session.completed') {
+      await createCartOrder(event.data.object);
+    }
+
+    res.status(200).json({ received: true });
   } catch (err) {
     console.error('❌ Webhook verification failed:', err.message);
-    return res.status(400).json({ error: err.message });
+    res.status(400).send(`Webhook Error: ${err.message}`);
   }
-
-  if (event.type === 'checkout.session.completed') {
-    // Create order
-    await createCartOrder(event.data.object);
-    res.status(200).json({ received: true });
-  }
-
-  res.status(200).json({ message: 'Event received' });
 };
