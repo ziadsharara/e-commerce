@@ -28,13 +28,15 @@ const __dirname = dirname(__filename);
 
 // Express app
 const app = express();
+const webhookApp = express();
 
 // Checkout webhook
-app.post(
+webhookApp.post(
   '/webhook-checkout',
   express.raw({ type: 'application/json' }),
   webhookCheckout,
 );
+app.use(webhookApp);
 
 // Enable other domains to access my application
 app.use(cors());
