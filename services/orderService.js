@@ -1,6 +1,7 @@
 import { Order } from '../models/orderModel.js';
 import { Cart } from '../models/cartModel.js';
 import { Product } from '../models/productModel.js';
+import { User } from '../models/userModel.js';
 import { getAll, getOne } from './handlersFactory.js';
 import { ApiError } from '../utils/apiError.js';
 import Stripe from 'stripe';
@@ -172,6 +173,41 @@ export const checkoutSession = async (req, res, next) => {
   res.status(200).json({ Success: true, session });
 };
 
+const createCartOrder = async session => {
+  const cartId = session.client_reference_id;
+  const shippingAddress = session.metadata;
+  const orderPrice = session.amount_total / 100;
+
+  const cart = await Cart.findById(cartId);
+  const user = await User.findOne({ email: session.customer_email });
+
+  // Create order with default paymentMethodType card
+  const order = await Order.create({
+    user: user._id,
+    cartItems: cart.cartItems,
+    shippingAddress,
+    totalOrderPrice: orderPrice,
+    isPaid: true,
+    paidAt: Date.now(),
+    paymentMethodType: 'card',
+  });
+
+  // After creating order, decrement product quantity, increment product sold
+  if (order) {
+    const bulkOption = cart.cartItems.map(item => ({
+      updateOne: {
+        filter: { _id: item.product },
+        update: { $inc: { quantity: -item.quantity, sold: +item.quantity } },
+      },
+    }));
+    await Product.bulkWrite(bulkOption, {});
+
+    // Clear cart depend on cartId
+    await Cart.findByIdAndDelete(cartId);
+  }
+
+  res.status(200).json({ Success: true, received: true });
+};
 // @desc    This webhook will run when stripe payment success paid
 // @route   POST /webhook-checkout
 // @access  Protected/User
@@ -195,6 +231,7 @@ export const webhookCheckout = async (req, res, next) => {
   }
 
   if (event.type === 'checkout.session.completed') {
-    console.log(event.data.object);
+    // Create order
+    createCartOrder(event.data.object);
   }
 };
