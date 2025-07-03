@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import morgan from 'morgan'; // HTTP request logger middleware
 import cors from 'cors';
 import compression from 'compression';
+import cookieParser from 'cookie-parser';
 
 // Error handling
 import { ApiError } from './utils/apiError.js';
@@ -29,6 +30,8 @@ const __dirname = dirname(__filename);
 // Express app
 const app = express();
 
+app.use(cookieParser());
+
 // Checkout webhook
 app.post(
   '/webhook-checkout',
@@ -44,7 +47,6 @@ app.use(compression());
 
 // Middlewares
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'uploads')));
 
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
