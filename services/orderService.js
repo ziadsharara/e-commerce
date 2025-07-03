@@ -147,8 +147,8 @@ export const checkoutSession = async (req, res, next) => {
 
   const token = req.headers.authorization?.split(' ')[1];
 
-  const successUrl = `https://e-commerce-production-ef93.up.railway.app/orders?token=${token}`;
-  const cancelUrl = `https://e-commerce-production-ef93.up.railway.app/cart?token=${token}`;
+  const successUrl = `https://e-commerce-production-ef93.up.railway.app/orders?Authorization=${token}`;
+  const cancelUrl = `https://e-commerce-production-ef93.up.railway.app/cart?Authorization=${token}`;
 
   // 3) Create stripe checkout session
   const session = await stripe.checkout.sessions.create({
