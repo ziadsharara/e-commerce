@@ -4,10 +4,7 @@ import * as paymentService from '../services/paymentService.js';
 
 const router = express.Router();
 
-router.use(
-  authService.protect,
-  authService.allowedTo('user', 'admin', 'manager'),
-);
+router.use(authService.protect, authService.allowedTo('user'));
 
 router.route('/create-intent/:orderId').post(paymentService.createPayment);
 
