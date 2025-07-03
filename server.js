@@ -45,9 +45,6 @@ app.use(cors());
 // Compress all responses
 app.use(compression());
 
-// Mount Routes
-mountRoutes(app);
-
 // Middlewares
 app.use(express.json());
 
@@ -55,6 +52,9 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
   console.log(`mode: ${process.env.NODE_ENV}`);
 }
+
+// Mount Routes
+mountRoutes(app);
 
 // Generate error handling middleware for express
 app.use((req, res, next) => {

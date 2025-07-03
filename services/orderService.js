@@ -160,8 +160,8 @@ export const checkoutSession = async (req, res, next) => {
       },
     ],
     mode: 'payment',
-    success_url: `${req.protocol}://${req.get('host')}/orders`,
-    cancel_url: `${req.protocol}://${req.get('host')}/cart`,
+    success_url: `https://e-commerce-production-ef93.up.railway.app/api/v1/orders`,
+    cancel_url: `https://e-commerce-production-ef93.up.railway.app/api/v1/cart`,
     customer_email: req.user.email,
     client_reference_id: req.params.cartId,
     metadata: {
