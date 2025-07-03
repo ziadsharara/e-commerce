@@ -145,6 +145,11 @@ export const checkoutSession = async (req, res, next) => {
 
   const totalOrderPrice = cartPrice + taxPrice + shippingPrice;
 
+  const token = req.headers.authorization?.split(' ')[1];
+
+  const successUrl = `https://e-commerce-production-ef93.up.railway.app/orders?token=${token}`;
+  const cancelUrl = `https://e-commerce-production-ef93.up.railway.app/cart?token=${token}`;
+
   // 3) Create stripe checkout session
   const session = await stripe.checkout.sessions.create({
     line_items: [
@@ -160,8 +165,8 @@ export const checkoutSession = async (req, res, next) => {
       },
     ],
     mode: 'payment',
-    success_url: `https://e-commerce-production-ef93.up.railway.app/api/v1/orders`,
-    cancel_url: `https://e-commerce-production-ef93.up.railway.app/api/v1/cart`,
+    success_url: successUrl,
+    cancel_url: cancelUrl,
     customer_email: req.user.email,
     client_reference_id: req.params.cartId,
     metadata: {

@@ -33,6 +33,8 @@ const app = express();
 app.use(cookieParser());
 
 // Checkout webhook
+import * as authService from './services/authService.js';
+
 app.post(
   '/webhook-checkout',
   express.raw({ type: 'application/json' }),
