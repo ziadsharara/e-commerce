@@ -1,7 +1,6 @@
 import mongoose from 'mongoose';
 import { Order } from '../models/orderModel.js';
 import { Payment } from '../models/paymentModel.js';
-import { Shipping } from '../models/shippingModel.js';
 import { AppError } from '../utils/apiError.js';
 import {
   createCheckoutSession,
