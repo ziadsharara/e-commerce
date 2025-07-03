@@ -28,7 +28,7 @@ export const createCheckoutSession = async (
           quantity: 1,
         },
       ],
-      success_url: `${req.protocol}://${req.get('host')}/api/v1/payment/confirm/:paymentId`,
+      success_url: `${req.protocol}://${req.get('host')}/api/v1/payment/confirm/${payment._id}?sessionId={CHECKOUT_SESSION_ID}&token=${token}`,
       cancel_url: `${req.protocol}://${req.get('host')}/api/v1/cart`,
       customer_email: req.user.email,
       metadata,

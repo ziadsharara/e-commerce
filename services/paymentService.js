@@ -19,15 +19,8 @@ export const createPayment = async (req, res, next) => {
     }
     const order = await Order.findById(orderId);
     if (!order) return next(new ApiError('Order not Found', 404));
-    if (order.user.toString() !== req.user._id.toString())
-      return next(new ApiError('Not Authorized to access this order', 403));
-    if (order.status !== 'pending') {
-      return next(
-        new ApiError('Payment already processed for this order', 400),
-      );
-    }
     const paymentSession = await createCheckoutSession(
-      order.totalOrderPrice || order.totalPrice, // Use totalOrderPrice if available
+      order.totalOrderPrice,
       order.currency || 'usd',
       { order: orderId.toString(), user: req.user._id.toString() },
       req,
