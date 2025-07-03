@@ -10,6 +10,7 @@ import addressesRoute from './addressesRoute.js';
 import couponRoute from './couponRoute.js';
 import cartRoute from './cartRoute.js';
 import orderRoute from './orderRoute.js';
+import paymentRoute from './paymentRoute.js';
 
 const mountRoutes = app => {
   app.use('/api/v1/categories', categoryRoute);
@@ -24,6 +25,7 @@ const mountRoutes = app => {
   app.use('/api/v1/coupons', couponRoute);
   app.use('/api/v1/cart', cartRoute);
   app.use('/api/v1/orders', orderRoute);
+  app.use('/api/v1/payment', paymentRoute);
 };
 
 export default mountRoutes;
