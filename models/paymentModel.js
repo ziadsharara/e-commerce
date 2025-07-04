@@ -14,7 +14,7 @@ const paymentSchema = new mongoose.Schema(
     },
     currency: {
       type: String,
-      default: 'usd',
+      default: 'egy',
     },
     paymentMethod: {
       type: String,
@@ -34,7 +34,7 @@ const paymentSchema = new mongoose.Schema(
       type: Object,
     },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 export const Payment = mongoose.model('Payment', paymentSchema);
