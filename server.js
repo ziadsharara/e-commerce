@@ -62,8 +62,10 @@ const server = app.listen(PORT, () =>
 // Events => listen => callback(err)
 // Handling rejections outside express
 process.on('unhandledRejection', (err) => {
-  console.error(`UnhandledRejection Errors: ${err.name} | ${err.message}`);
-  // finish all processes on the server and exit from app
+  console.error('== Unhandled Rejection Detected ==');
+  console.error('Name:', err.name);
+  console.error('Message:', err.message);
+  console.error('Stack:', err.stack);
   server.close(() => {
     console.error(`Shutting down...`);
     process.exit(1);
