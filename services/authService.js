@@ -41,13 +41,15 @@ export const login = async (req, res, next) => {
 
 // @desc    Make sure the user is logged in
 export const protect = async (req, res, next) => {
-  // 1) Check if token exist, if exist get
+  // 1) Check if token exists
   let token;
   if (
     req.headers.authorization &&
     req.headers.authorization.startsWith('Bearer')
   ) {
     token = req.headers.authorization.split(' ')[1];
+  } else if (req.query.token) {
+    token = req.query.token;
   }
 
   if (!token) {
@@ -59,37 +61,21 @@ export const protect = async (req, res, next) => {
     );
   }
 
-  // 2) Verify token (no change happens, expired token)
+  // 2) Verify token
   const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
 
-  // 3) Check if user exist
+  // 3) Check if user still exists
   const currentUser = await User.findById(decoded.userId);
   if (!currentUser) {
     return next(
       new ApiError(
-        'The user that belong to this token dose no longer exist!',
+        'The user that belong to this token does no longer exist',
         401,
       ),
     );
   }
 
-  // 4) Check if user his password after token created
-  if (currentUser.passwordChangedAt) {
-    const passwordChangedTimestamp = parseInt(
-      currentUser.passwordChangedAt.getTime() / 1000,
-      10,
-    );
-    // Password changed after token created (Error)
-    if (passwordChangedTimestamp > decoded.iat) {
-      return next(
-        new ApiError(
-          'User recently changed his password, Please login again!',
-          401,
-        ),
-      );
-    }
-  }
-
+  // 4) Attach user to request
   req.user = currentUser;
   next();
 };

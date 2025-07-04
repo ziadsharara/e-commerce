@@ -11,8 +11,12 @@ export const createCheckoutSession = async (
   currency = 'usd',
   metadata = {},
   req,
+  paymentId
 ) => {
   try {
+    const successUrl = `${req.protocol}://${req.get('host')}/api/v1/payment/confirm/${paymentId}?sessionId=CHECKOUT_SESSION_ID`;
+    const cancelUrl = `${req.protocol}://${req.get('host')}/api/v1/cart`;
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       mode: 'payment',
@@ -28,8 +32,8 @@ export const createCheckoutSession = async (
           quantity: 1,
         },
       ],
-      success_url: `${req.protocol}://${req.get('host')}/api/v1/payment/confirm/${payment._id}?sessionId={CHECKOUT_SESSION_ID}&token=${token}`,
-      cancel_url: `${req.protocol}://${req.get('host')}/api/v1/cart`,
+      success_url: successUrl,
+      cancel_url: cancelUrl,
       customer_email: req.user.email,
       metadata,
     });
@@ -48,7 +52,7 @@ export const createCheckoutSession = async (
   }
 };
 
-export const getSessionStatus = async sessionId => {
+export const getSessionStatus = async (sessionId) => {
   try {
     const session = await stripe.checkout.sessions.retrieve(sessionId);
 

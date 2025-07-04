@@ -14,29 +14,46 @@ import { getAll } from './handlersFactory.js';
 export const createPayment = async (req, res, next) => {
   try {
     const { orderId } = req.params;
+
     if (!mongoose.Types.ObjectId.isValid(orderId)) {
       return next(new ApiError('Invalid order ID', 400));
     }
+
     const order = await Order.findById(orderId);
     if (!order) return next(new ApiError('Order not Found', 404));
-    const paymentSession = await createCheckoutSession(
-      order.totalOrderPrice,
-      order.currency || 'usd',
-      { order: orderId.toString(), user: req.user._id.toString() },
-      req,
-    );
-    if (!paymentSession.success)
-      return next(
-        new ApiError(`Payment processing failed: ${paymentSession.error}`, 400),
-      );
+
     const payment = await Payment.create({
       user: req.user._id,
       order: orderId,
       currency: order.currency || 'usd',
       paymentMethod: 'stripe',
-      transactionId: paymentSession.sessionId,
+      transactionId: '',
       status: 'pending',
     });
+
+    const token = req.headers.authorization?.split(' ')[1];
+
+    const paymentSession = await createCheckoutSession(
+      order.totalOrderPrice,
+      order.currency || 'usd',
+      {
+        order: orderId.toString(),
+        user: req.user._id.toString(),
+        productName: 'Order Payment',
+        paymentId: payment._id.toString(),
+        token: token,
+      },
+      req,
+    );
+
+    if (!paymentSession.success)
+      return next(
+        new ApiError(`Payment processing failed: ${paymentSession.error}`, 400),
+      );
+
+    payment.transactionId = paymentSession.sessionId;
+    await payment.save();
+
     res.status(200).json({
       status: 'success',
       data: {
@@ -56,15 +73,20 @@ export const createPayment = async (req, res, next) => {
 // @route POST /api/v1/payment/confirm/:paymentId
 // @access Private/protect/user
 export const confirmPayment = async (req, res, next) => {
-  const { paymentSessionId } = req.body;
-  if (!paymentSessionId)
-    return next(new ApiError('Payment intent ID not found', 400));
+  const paymentSessionId = req.query.sessionId || req.body.paymentSessionId;
+
+  if (!paymentSessionId) {
+    return next(new ApiError('Payment session ID not found', 400));
+  }
+
   const { paymentId } = req.params;
   if (!mongoose.Types.ObjectId.isValid(paymentId)) {
     return next(new ApiError('Invalid payment ID', 400));
   }
+
   const session = await mongoose.startSession();
   session.startTransaction();
+
   try {
     const payment = await Payment.findById(paymentId);
     if (!payment) return next(new ApiError('Payment not found', 404));
@@ -77,33 +99,34 @@ export const confirmPayment = async (req, res, next) => {
     if (payment.status === 'completed') {
       return next(new ApiError('Payment already processed', 400));
     }
+
     const paymentResult = await getSessionStatus(paymentSessionId);
     if (!paymentResult.success) {
       await session.abortTransaction();
       session.endSession();
       return next(new ApiError('Payment not successful', 400));
     }
-    // Update payment and order status
+
     payment.status = 'completed';
+    payment.gateWayResponse = paymentResult.gateWayResponse;
     await payment.save({ session });
+
     const order = await Order.findById(payment.order).session(session);
     if (!order) {
       await session.abortTransaction();
       session.endSession();
       return next(new ApiError('Order not found', 404));
     }
+
     order.status = 'processing';
+    order.isPaid = true;
+    order.paidAt = Date.now();
+    order.paymentMethodType = 'card';
     await order.save({ session });
-    // Optionally, create a shipping record if needed
-    // const { address } = req.body;
-    // await Shipping.create({
-    //   user: req.user._id,
-    //   order: order._id,
-    //   status: 'pending',
-    //   address: address || order.shippingAddress,
-    // });
+
     await session.commitTransaction();
     session.endSession();
+
     res.status(200).json({
       status: 'success',
       message: 'Payment confirmed and order processing',
