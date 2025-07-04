@@ -48,9 +48,9 @@ if (process.env.NODE_ENV === 'development') {
 mountRoutes(app);
 
 // Generate error handling middleware for express
-app.use((req, res, next) => {
-  next(new ApiError(`Can't find this route: ${req.originalUrl}`, 400));
-});
+// app.use((req, res, next) => {
+//   next(new ApiError(`Can't find this route: ${req.originalUrl}`, 400));
+// });
 
 // Express error handler => if you pass 4 params in app.use() => express error handler
 // Global error handling middleware
