@@ -30,17 +30,6 @@ const __dirname = dirname(__filename);
 // Express app
 const app = express();
 
-app.use(cookieParser());
-
-// Checkout webhook
-import * as authService from './services/authService.js';
-
-app.post(
-  '/webhook-checkout',
-  express.raw({ type: 'application/json' }),
-  webhookCheckout,
-);
-
 // Enable other domains to access my application
 app.use(cors());
 
@@ -69,12 +58,12 @@ app.use(globalError);
 
 const PORT = process.env.PORT || 8000;
 const server = app.listen(PORT, () =>
-  console.log(`Example app listening on port ${PORT}!`),
+  console.log(`Example app listening on port ${PORT}!`)
 );
 
 // Events => listen => callback(err)
 // Handling rejections outside express
-process.on('unhandledRejection', err => {
+process.on('unhandledRejection', (err) => {
   console.error(`UnhandledRejection Errors: ${err.name} | ${err.message}`);
   // finish all processes on the server and exit from app
   server.close(() => {
