@@ -16,6 +16,7 @@ import dbConnection from './config/database.js';
 
 // Routes
 import mountRoutes from './routes/index.js';
+import { webhookCheckout } from './services/orderService.js';
 
 dotenv.config({ path: 'config.env' }); // Setting the .env variables
 // Connect with db
@@ -36,6 +37,7 @@ app.use(compression());
 
 // Middlewares
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
@@ -56,7 +58,7 @@ app.use(globalError);
 
 const PORT = process.env.PORT || 8000;
 const server = app.listen(PORT, () =>
-  console.log(`Example app listening on port ${PORT}!`)
+  console.log(`App listening on port ${PORT}!`)
 );
 
 // Events => listen => callback(err)
