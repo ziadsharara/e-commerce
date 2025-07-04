@@ -7,3 +7,4 @@ config.env
 uploads/
 
 .prettierrc
+.vercel

@@ -6,7 +6,6 @@ import dotenv from 'dotenv';
 import morgan from 'morgan'; // HTTP request logger middleware
 import cors from 'cors';
 import compression from 'compression';
-import cookieParser from 'cookie-parser';
 
 // Error handling
 import { ApiError } from './utils/apiError.js';
@@ -17,7 +16,6 @@ import dbConnection from './config/database.js';
 
 // Routes
 import mountRoutes from './routes/index.js';
-import { webhookCheckout } from './services/orderService.js';
 
 dotenv.config({ path: 'config.env' }); // Setting the .env variables
 // Connect with db
