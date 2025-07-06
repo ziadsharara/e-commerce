@@ -4,6 +4,7 @@ import bcrypt from 'bcryptjs';
 import { ApiError } from '../utils/apiError.js';
 import { User } from '../models/userModel.js';
 import generateToken from '../utils/generateToken.js';
+import { sanitizeUser } from '../utils/sanitizeData.js';
 
 // @desc    Signup
 // @route   POST /api/v1/auth/signup
@@ -19,7 +20,7 @@ export const signup = async (req, res, next) => {
   // 2- Generate token
   const token = generateToken(user._id);
 
-  res.status(201).json({ success: true, data: user, token });
+  res.status(201).json({ success: true, data: sanitizeUser(user), token });
 };
 
 // @desc    Login
@@ -32,11 +33,12 @@ export const login = async (req, res, next) => {
   if (!user || !(await bcrypt.compare(req.body.password, user.password))) {
     return next(new ApiError('Incorrect email or password!', 401));
   }
+
   // 3- generate token
   const token = generateToken(user._id);
 
   // 4- send response to client side
-  res.status(200).json({ success: true, data: user, token });
+  res.status(200).json({ success: true, data: sanitizeUser(user), token });
 };
 
 // @desc    Make sure the user is logged in
@@ -56,8 +58,8 @@ export const protect = async (req, res, next) => {
     return next(
       new ApiError(
         'You are not login, Please login to get access to this route!',
-        401,
-      ),
+        401
+      )
     );
   }
 
@@ -70,8 +72,8 @@ export const protect = async (req, res, next) => {
     return next(
       new ApiError(
         'The user that belong to this token does no longer exist',
-        401,
-      ),
+        401
+      )
     );
   }
 
@@ -89,7 +91,7 @@ export const allowedTo =
     // 2) Access registered user (req.user.role)
     if (!roles.includes(req.user.role)) {
       return next(
-        new ApiError('You are not allowed to access this route', 403),
+        new ApiError('You are not allowed to access this route', 403)
       );
     }
     next();

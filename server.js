@@ -7,6 +7,12 @@ import morgan from 'morgan'; // HTTP request logger middleware
 import cors from 'cors';
 import compression from 'compression';
 
+import { rateLimit } from 'express-rate-limit';
+import hpp from 'hpp';
+import helmet from 'helmet';
+import { xss } from 'express-xss-sanitizer';
+import nosqlSanitizer from 'express-nosql-sanitizer';
+
 // Error handling
 import { ApiError } from './utils/apiError.js';
 import { globalError } from './middlewares/errorMiddleware.js';
@@ -42,6 +48,28 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
   console.log(`mode: ${process.env.NODE_ENV}`);
 }
+
+// Sanitize incoming data against XSS
+app.use(helmet());
+app.use(xss({ allowedTags: ['b', 'i', 'a'] }));
+app.use(nosqlSanitizer());
+
+// Limit each IP to 100 requests per `window` (here, per 15 minutes).
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  limit: 100,
+  message: { error: 'Too many requests, please try again later.' },
+});
+
+// Apply the rate limiting middleware to all requests.
+app.use('/api', limiter);
+
+// Middleware to protect against HTTP Parameter Pollution attacks
+app.use(
+  hpp({
+    whitelist: ['price', 'sold', 'quantity', 'ratingAverage', 'ratingQuantity'],
+  })
+);
 
 // Mount Routes
 mountRoutes(app);

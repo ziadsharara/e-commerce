@@ -19,12 +19,12 @@ export const signupValidator = [
     .withMessage('Email required!')
     .isEmail()
     .withMessage('Invalid email address!')
-    .custom(val =>
-      User.findOne({ email: val }).then(user => {
+    .custom((val) =>
+      User.findOne({ email: val }).then((user) => {
         if (user) {
           return Promise.reject(new Error('Email already in user!'));
         }
-      }),
+      })
     ),
 
   check('password')
