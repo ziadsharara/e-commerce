@@ -16,7 +16,6 @@ import dbConnection from './config/database.js';
 
 // Routes
 import mountRoutes from './routes/index.js';
-import { webhookCheckout } from './services/orderService.js';
 
 dotenv.config({ path: 'config.env' }); // Setting the .env variables
 // Connect with db
@@ -36,7 +35,7 @@ app.use(cors());
 app.use(compression());
 
 // Middlewares
-app.use(express.json());
+app.use(express.json({ limit: '20kb' }));
 app.use(express.urlencoded({ extended: true }));
 
 if (process.env.NODE_ENV === 'development') {
