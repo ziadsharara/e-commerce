@@ -2,9 +2,7 @@ import express from 'express';
 import {
   filterOrderForLoggedUser,
   findAllOrders,
-  findSpecificOrder,
-  updateOrderToDelivered,
-  updateOrderToPay,
+  getOrderById,
 } from '../services/orderService.js';
 
 import * as authService from '../services/authService.js';
@@ -20,16 +18,6 @@ router
     filterOrderForLoggedUser,
     findAllOrders
   );
-router.route('/:id').get(findSpecificOrder);
-router.put(
-  '/:id/pay',
-  authService.allowedTo('admin', 'manager'),
-  updateOrderToPay
-);
-router.put(
-  '/:id/deliver',
-  authService.allowedTo('admin', 'manager'),
-  updateOrderToDelivered
-);
+router.route('/:id').get(getOrderById);
 
 export default router;

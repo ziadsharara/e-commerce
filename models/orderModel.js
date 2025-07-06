@@ -33,9 +33,9 @@ const orderSchema = mongoose.Schema(
       default: 0,
     },
     totalOrderPrice: Number,
-    paymentMethodType: {
+    paymentMethod: {
       type: String,
-      enum: ['card', 'cash'],
+      enum: ['cash', 'paymob'],
       default: 'cash',
     },
     isPaid: {
@@ -43,13 +43,14 @@ const orderSchema = mongoose.Schema(
       default: false,
     },
     paidAt: Date,
+    paymobOrderId: String,
     isDelivered: {
       type: Boolean,
       default: false,
     },
     deliveredAt: Date,
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 orderSchema.pre(/^find/, function (next) {

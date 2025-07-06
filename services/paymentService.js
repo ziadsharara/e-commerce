@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { Order } from '../models/orderModel.js';
 import { Cart } from '../models/cartModel.js';
+import { Product } from '../models/productModel.js';
 import { ApiError } from '../utils/apiError.js';
 import dotenv from 'dotenv';
 
@@ -18,7 +19,7 @@ function checkPaymobEnv(next) {
     !PAYMOB_API_URL ||
     !PAYMOB_IFRAME_ID
   ) {
-    return next(
+    next(
       new ApiError('Paymob environment variables are not set correctly', 500)
     );
   }
@@ -58,11 +59,8 @@ async function createPaymentKey(authToken, orderId, amount, billingData) {
   return response.data.token;
 }
 
-// @desc    Create Paymob payment session
-// @route   POST /api/v1/payment/paymob
-// @access  Private/User
 export const createPaymobPayment = async (req, res, next) => {
-  if (checkPaymobEnv(next)) return;
+  checkPaymobEnv(next);
   try {
     const { amount } = req.body;
     if (!amount) return next(new ApiError('Amount is required', 400));
@@ -70,24 +68,9 @@ export const createPaymobPayment = async (req, res, next) => {
     const userCart = await Cart.findOne({ user: req.user._id });
     if (!userCart) return next(new ApiError('Cart not found', 404));
 
-    // 1. Create order in MongoDB
-    const mongoOrder = await Order.create({
-      user: req.user._id,
-      cartItems: userCart.cartItems,
-      totalOrderPrice: amount,
-      paymentMethod: 'paymob',
-      isPaid: false,
-    });
-
-    // 2. Create order in Paymob
     const authToken = await getAuthToken();
     const paymobOrderId = await createPaymobOrder(authToken, amount);
 
-    // 3. Update Mongo order with paymobOrderId
-    mongoOrder.paymobOrderId = paymobOrderId;
-    await mongoOrder.save();
-
-    // 4. Prepare billing data
     const billingData = {
       apartment: '123',
       email: req.user.email,
@@ -104,9 +87,9 @@ export const createPaymobPayment = async (req, res, next) => {
         ? req.user.name.split(' ').slice(1).join(' ') || 'Unknown'
         : 'Unknown',
       state: 'Cairo',
+      user_id: req.user._id.toString(),
     };
 
-    // 5. Create payment key
     const paymentKey = await createPaymentKey(
       authToken,
       paymobOrderId,
@@ -114,12 +97,10 @@ export const createPaymobPayment = async (req, res, next) => {
       billingData
     );
 
-    // 6. Return iframe url
     const iframeUrl = `https://accept.paymobsolutions.com/api/acceptance/iframes/${PAYMOB_IFRAME_ID}?payment_token=${paymentKey}`;
     res.status(200).json({
       success: true,
       iframeUrl,
-      mongoOrderId: mongoOrder._id,
       paymobOrderId,
     });
   } catch (error) {
@@ -128,23 +109,47 @@ export const createPaymobPayment = async (req, res, next) => {
   }
 };
 
-// @desc    Paymob Webhook
-// @route   POST /api/v1/payment/paymob-webhook
-// @access  Public
+// Webhook
 export const paymobWebhook = async (req, res) => {
   const { obj } = req.body;
-  if (obj.success && obj.order && obj.order.id) {
-    const order = await Order.findOne({
-      paymobOrderId: obj.order.id,
-      isPaid: false,
-    });
-    if (order) {
-      order.isPaid = true;
-      order.paidAt = Date.now();
-      order.paymentMethod = 'paymob';
-      await order.save();
-      return res.status(200).json({ received: true });
-    }
+
+  if (req.headers['x-paymob-secret'] !== process.env.PAYMOB_WEBHOOK_SECRET) {
+    return res.status(401).json({ message: 'Unauthorized webhook call' });
   }
+
+  if (obj.success && obj.order && obj.order.id) {
+    const userId = obj.billing_data?.user_id;
+    if (!userId)
+      return res.status(400).json({ message: 'User ID not found in webhook' });
+
+    const userCart = await Cart.findOne({ user: userId });
+    if (!userCart)
+      return res.status(400).json({ message: 'Cart not found for user' });
+
+    const order = await Order.create({
+      user: userId,
+      cartItems: userCart.cartItems,
+      totalOrderPrice: obj.amount_cents / 100,
+      paymentMethod: 'paymob',
+      isPaid: true,
+      paidAt: Date.now(),
+      paymobOrderId: obj.order.id,
+    });
+
+    for (const item of userCart.cartItems) {
+      await Product.findByIdAndUpdate(
+        item.product,
+        {
+          $inc: { quantity: -item.quantity, sold: +item.quantity },
+        },
+        { new: true }
+      );
+    }
+
+    await Cart.findOneAndDelete({ user: userId });
+
+    return res.status(200).json({ received: true, orderId: order._id });
+  }
+
   res.status(400).json({ message: 'Invalid webhook data' });
 };
