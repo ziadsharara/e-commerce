@@ -90,6 +90,17 @@ export const createPaymobPayment = async (req, res, next) => {
       user_id: req.user._id.toString(),
     };
 
+    const order = await Order.create({
+      user: req.user._id,
+      cartItems: userCart.cartItems,
+      totalOrderPrice: userCart.totalCartPrice,
+      paymentMethod: 'paymob',
+      paymobOrderId,
+      isPaid: false,
+    });
+
+    await Cart.findOneAndDelete({ user: req.user._id });
+
     const paymentKey = await createPaymentKey(
       authToken,
       paymobOrderId,
@@ -102,6 +113,7 @@ export const createPaymobPayment = async (req, res, next) => {
       success: true,
       iframeUrl,
       paymobOrderId,
+      orderId: order._id,
     });
   } catch (error) {
     console.error('Paymob error:', error.message);
@@ -109,7 +121,6 @@ export const createPaymobPayment = async (req, res, next) => {
   }
 };
 
-// Webhook
 export const paymobWebhook = async (req, res) => {
   const { obj } = req.body;
 
@@ -118,25 +129,15 @@ export const paymobWebhook = async (req, res) => {
   }
 
   if (obj.success && obj.order && obj.order.id) {
-    const userId = obj.billing_data?.user_id;
-    if (!userId)
-      return res.status(400).json({ message: 'User ID not found in webhook' });
+    const order = await Order.findOne({ paymobOrderId: obj.order.id });
+    if (!order)
+      return res.status(400).json({ message: 'Order not found for payment' });
 
-    const userCart = await Cart.findOne({ user: userId });
-    if (!userCart)
-      return res.status(400).json({ message: 'Cart not found for user' });
+    order.isPaid = true;
+    order.paidAt = Date.now();
+    await order.save();
 
-    const order = await Order.create({
-      user: userId,
-      cartItems: userCart.cartItems,
-      totalOrderPrice: obj.amount_cents / 100,
-      paymentMethod: 'paymob',
-      isPaid: true,
-      paidAt: Date.now(),
-      paymobOrderId: obj.order.id,
-    });
-
-    for (const item of userCart.cartItems) {
+    for (const item of order.cartItems) {
       await Product.findByIdAndUpdate(
         item.product,
         {
@@ -145,8 +146,6 @@ export const paymobWebhook = async (req, res) => {
         { new: true }
       );
     }
-
-    await Cart.findOneAndDelete({ user: userId });
 
     return res.status(200).json({ received: true, orderId: order._id });
   }

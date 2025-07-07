@@ -1,7 +1,9 @@
 import express from 'express';
-import { createPaymobPayment } from '../services/paymentService.js';
+import {
+  createPaymobPayment,
+  paymobWebhook,
+} from '../services/paymentService.js';
 import * as authService from '../services/authService.js';
-import { paymobWebhook } from '../services/paymentService.js';
 
 const router = express.Router();
 

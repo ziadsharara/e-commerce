@@ -33,6 +33,9 @@ const orderSchema = mongoose.Schema(
       default: 0,
     },
     totalOrderPrice: Number,
+    paymobOrderId: {
+      type: String,
+    },
     paymentMethod: {
       type: String,
       enum: ['cash', 'paymob'],
