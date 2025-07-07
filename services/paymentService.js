@@ -122,7 +122,17 @@ export const createPaymobPayment = async (req, res, next) => {
 };
 
 export const paymobWebhook = async (req, res) => {
+  if (!req.body || typeof req.body !== 'object') {
+    return res.status(400).json({ message: 'Invalid webhook body' });
+  }
+
   const { obj } = req.body;
+
+  if (!obj) {
+    return res
+      .status(400)
+      .json({ message: 'Missing "obj" in webhook payload' });
+  }
 
   if (req.headers['x-paymob-secret'] !== process.env.PAYMOB_WEBHOOK_SECRET) {
     return res.status(401).json({ message: 'Unauthorized webhook call' });

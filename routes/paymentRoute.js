@@ -1,4 +1,6 @@
 import express from 'express';
+import bodyParser from 'body-parser';
+
 import {
   createPaymobPayment,
   paymobWebhook,
@@ -14,6 +16,6 @@ router.post(
   createPaymobPayment
 );
 
-router.post('/paymob-webhook', express.json({ type: '*/*' }), paymobWebhook);
+router.post('/paymob-webhook', bodyParser.json({ type: '*/*' }), paymobWebhook);
 
 export default router;
