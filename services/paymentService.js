@@ -122,6 +122,9 @@ export const createPaymobPayment = async (req, res, next) => {
 };
 
 export const paymobWebhook = async (req, res) => {
+  console.log('🚀 Incoming Webhook:', req.body);
+  console.log('🔐 Secret Header:', req.headers['x-paymob-secret']);
+
   if (!req.body || typeof req.body !== 'object') {
     return res.status(400).json({ message: 'Invalid webhook body' });
   }
@@ -149,9 +152,12 @@ export const paymobWebhook = async (req, res) => {
 
     for (const item of order.cartItems) {
       await Product.findByIdAndUpdate(
-        item.product,
+        item.product._id,
         {
-          $inc: { quantity: -item.quantity, sold: +item.quantity },
+          $inc: {
+            quantity: -item.quantity,
+            sold: +item.quantity,
+          },
         },
         { new: true }
       );
