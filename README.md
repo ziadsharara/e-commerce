@@ -71,7 +71,7 @@ This project provides a robust RESTful API for managing users, products, orders,
 | Database         | MongoDB + Mongoose                    |
 | Authentication   | JWT                                   |
 | File Uploads     | Multer + Sharp                        |
-| Payments         | Stripe                                |
+| Payments         | Paymob                                |
 | Email Services   | Nodemailer                            |
 | Security         | Helmet, express-rate-limit, hpp, mongo-sanitize |
 | Validation       | Custom logic      |
